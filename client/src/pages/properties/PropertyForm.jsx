@@ -2,25 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PropertyCard from "../../components/properties/PropertyCard";
 
-// Mock data – same as in Properties.jsx (simplified for demonstration)
-const propertiesData = [
-  { id: 1, address: "451 Birch Avenue", city: "Seattle, WA 98122", beds: 4, baths: 3.5, area: 2850, price: 925000, status: "Active", type: "House", image: "/images/properties/property-1.jpg" },
-  { id: 2, address: "789 Oak St", city: "Seattle, WA 98122", beds: 3, baths: 2.5, area: 2850, price: 1150000, status: "Sold", type: "House", image: "/images/properties/property-2.jpg" },
-  { id: 3, address: "210 Cedar Ln", city: "Seattle, WA 98122", beds: 4, baths: 3, area: 2850, price: 850000, status: "Active", type: "Villa", image: "/images/properties/property-3.jpg" },
-  { id: 4, address: "675 Maple Rd", city: "Seattle, WA 98122", beds: 4, baths: 3.5, area: 2850, price: 1380000, status: "Under Contract", type: "House", image: "/images/properties/property-4.jpg" },
-  { id: 5, address: "134 Elm St", city: "Seattle, WA 98122", beds: 4, baths: 3, area: 2850, price: 799000, status: "Active", type: "House", image: "/images/properties/property-5.jpg" },
-  { id: 6, address: "321 Pine Dr", city: "Seattle, WA 98122", beds: 4, baths: 3, area: 2850, price: 995000, status: "Sold", type: "Villa", image: "/images/properties/property-6.jpg" },
-];
+// Removed mock property data; real data will be fetched from the backend when editing.
 
 const initialEmpty = {
   address: "",
   city: "",
-  beds: "",
-  baths: "",
+  bedrooms: "",
+  bathrooms: "",
   area: "",
   price: "",
-  status: "Active",
-  type: "House",
+  status: "Available",
+  propertyType: "House",
   image: "",
 };
 
@@ -29,11 +21,23 @@ const PropertyForm = ({ mode }) => {
   const { id } = useParams(); // present only in edit mode
   const [formData, setFormData] = useState(initialEmpty);
 
-  // Load existing data when editing
+  // Load existing data when editing (fetch from backend)
   useEffect(() => {
     if (mode === "edit" && id) {
-      const property = propertiesData.find(p => p.id === Number(id));
-      if (property) setFormData({ ...property });
+      const fetchProperty = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`/api/properties/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          if (!response.ok) throw new Error(`Failed to fetch property (status ${response.status})`);
+          const data = await response.json();
+          setFormData(data);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchProperty();
     }
   }, [mode, id]);
 
@@ -49,33 +53,29 @@ const PropertyForm = ({ mode }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formDataToSend = new FormData();
-    // Append scalar fields
-    const scalarFields = ['title','description','address','city','state','zipCode','country','beds','baths','area','price','status','type'];
-    scalarFields.forEach(f => {
-      if (formData[f] !== undefined) {
-        formDataToSend.append(f, formData[f]);
-      }
+    const payload = {};
+    // Build payload from formData fields
+    const fields = ['title','description','address','city','state','zipCode','country','bedrooms','bathrooms','area','price','status','propertyType'];
+    fields.forEach(f => {
+      if (formData[f] !== undefined) payload[f] = formData[f];
     });
-    // Append images if any
-    if (formData.images && formData.images.length) {
-      Array.from(formData.images).forEach(file => {
-        formDataToSend.append('images', file);
-      });
+    // Include images if they are string URLs (skip file handling for now)
+    if (Array.isArray(formData.images)) {
+      payload.images = formData.images;
     }
     try {
-      if (mode === "add") {
-        await fetch('/api/properties', {
-          method: 'POST',
-          body: formDataToSend,
-        });
-      } else {
-        await fetch(`/api/properties/${id}`, {
-          method: 'PUT',
-          body: formDataToSend,
-        });
-      }
-      navigate('/properties');
+      const token = localStorage.getItem("token");
+      const url = mode === "add" ? "/api/properties" : `/api/properties/${id}`;
+      const method = mode === "add" ? "POST" : "PUT";
+      await fetch(url, {
+        method,
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      navigate('/properties', { state: { refresh: Date.now() } });
     } catch (err) {
       console.error('Error submitting property:', err);
     }
@@ -101,16 +101,16 @@ const PropertyForm = ({ mode }) => {
             <input name="state" placeholder="State" value={formData.state || ''} onChange={handleChange} className="rounded border p-2" />
             <input name="zipCode" placeholder="Zip Code" value={formData.zipCode || ''} onChange={handleChange} className="rounded border p-2" />
             <input name="country" placeholder="Country" value={formData.country || ''} onChange={handleChange} className="rounded border p-2" />
-            <input name="beds" placeholder="Beds" type="number" value={formData.beds} onChange={handleChange} className="rounded border p-2" required />
-            <input name="baths" placeholder="Baths" type="number" step="0.5" value={formData.baths} onChange={handleChange} className="rounded border p-2" required />
+            <input name="bedrooms" placeholder="Bedrooms" type="number" value={formData.bedrooms} onChange={handleChange} className="rounded border p-2" required />
+            <input name="bathrooms" placeholder="Bathrooms" type="number" step="0.5" value={formData.bathrooms} onChange={handleChange} className="rounded border p-2" required />
             <input name="area" placeholder="Area (sq ft)" type="number" value={formData.area} onChange={handleChange} className="rounded border p-2" required />
             <input name="price" placeholder="Price" type="number" value={formData.price} onChange={handleChange} className="rounded border p-2" required />
             <select name="status" value={formData.status} onChange={handleChange} className="rounded border p-2">
-              <option value="Active">Active</option>
+              <option value="Available">Available</option>
               <option value="Sold">Sold</option>
-              <option value="Under Contract">Under Contract</option>
+              <option value="Rented">Rented</option>
             </select>
-            <select name="type" value={formData.type} onChange={handleChange} className="rounded border p-2">
+            <select name="propertyType" value={formData.propertyType} onChange={handleChange} className="rounded border p-2">
               <option value="House">House</option>
               <option value="Apartment">Apartment</option>
               <option value="Villa">Villa</option>

@@ -32,11 +32,11 @@ ADMIN ONLY
 // Create client
 router.post("/", adminOnly, createClient);
 
-// Get all clients
-router.get("/", adminOnly, getClients);
+// Get all clients – any authenticated user can view
+router.get("/", getClients);
 
 // Get single client
-router.get("/:id", adminOnly, getClient);
+router.get("/:id", getClient);
 
 // Update client
 router.put("/:id", adminOnly, updateClient);

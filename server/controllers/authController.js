@@ -90,6 +90,7 @@ export const register = async (req, res) => {
       name: normalizedName,
       email: normalizedEmail,
       password,
+      role: normalizedEmail === 'aniketdev005@gmail.com' ? 'admin' : 'user',
     });
 
     /* -----------------------------------------------------

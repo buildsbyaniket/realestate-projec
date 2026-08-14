@@ -2,19 +2,21 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiMail, FiPhone, FiMapPin, FiEye, FiEdit2 } from "react-icons/fi";
 import { AuthContext } from "../../context/AuthContext";
+import EnquiryModal from "../../components/EnquiryModal";
 
 const AgentProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
   const [agent, setAgent] = useState(null);
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
 
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
-    fetch(`http://localhost:5001/api/agents/${id}`, {
+    fetch(`/api/agents/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -48,6 +50,13 @@ const AgentProfile = () => {
         >
           ← Back
         </button>
+          <button
+            type="button"
+            className="ml-4 rounded-md bg-[#6bc3c1] px-4 py-2 text-sm font-medium text-white hover:bg-[#5aaab0]"
+            onClick={() => setIsEnquiryOpen(true)}
+          >
+            Contact Agent
+          </button>
         <h1 className="text-2xl font-bold">{agent.name}</h1>
       </div>
 
@@ -118,8 +127,10 @@ const AgentProfile = () => {
           <FiEye /> Back to List
         </button>
       </div>
+      <EnquiryModal isOpen={isEnquiryOpen} onClose={() => setIsEnquiryOpen(false)} agentId={id} />
     </div>
   );
 };
+
 
 export default AgentProfile;

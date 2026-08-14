@@ -9,7 +9,9 @@ import propertyRoutes from "./routes/propertyRoutes.js";
 import agentRoutes from "./routes/agentRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
+import enquiryRoutes from "./routes/enquiryRoutes.js";
 
 dotenv.config();
 
@@ -20,8 +22,6 @@ const app = express();
 MIDDLEWARE
 =========================================================
 */
-
-
 
 app.use(
   cors({
@@ -47,16 +47,23 @@ ROUTES
 */
 
 app.use("/api/auth", authRoutes);
+
 app.use("/api/clients", clientRoutes);
 
 app.use("/api/properties", propertyRoutes);
 
 app.use("/api/agents", agentRoutes);
 
-app.use("/api/settings", settingsRoutes);
+app.use("/api/enquiries", enquiryRoutes);
+
+// Reports
+app.use("/api/reports", reportRoutes);
 
 // Admin routes
 app.use("/api/admin", adminRoutes);
+
+// Settings routes
+app.use("/api/settings", settingsRoutes);
 
 /*
 =========================================================
@@ -70,10 +77,15 @@ app.get("/", (req, res) => {
     message: "PropManage API is running",
   });
 });
+
 // 404 handler for unknown routes
-app.all('*', (req, res) => {
-  res.status(404).json({ success: false, message: 'API endpoint not found' });
+app.all("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API endpoint not found",
+  });
 });
+
 // Global error handling middleware
 app.use(errorHandler);
 

@@ -30,7 +30,7 @@ const EditAgent = () => {
       navigate("/login");
       return;
     }
-    fetch(`http://localhost:5001/api/agents/${id}`, {
+    fetch(`/api/agents/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -75,7 +75,7 @@ const EditAgent = () => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5001/api/agents/${id}`,
+      const res = await fetch(`/api/agents/${id}`,
         {
           method: "PUT",
           headers: {

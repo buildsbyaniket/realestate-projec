@@ -8,12 +8,14 @@ export default defineConfig({
     include: ['axios']
   },
   server: {
+    // Open the browser automatically on start
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
-        secure: false
-      }
-    }
+        secure: false,
+      },
+    },
   }
 })

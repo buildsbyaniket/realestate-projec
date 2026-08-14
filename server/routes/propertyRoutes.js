@@ -41,18 +41,18 @@ router.get("/:id", protect, getProperty);
 POST /api/properties
 Create property
 */
-router.post("/", adminOnly, createProperty);
+router.post("/", protect, adminOnly, createProperty);
 
 /*
 PUT /api/properties/:id
 Update property
 */
-router.put("/:id", adminOnly, updateProperty);
+router.put("/:id", protect, adminOnly, updateProperty);
 
 /*
 DELETE /api/properties/:id
 Delete property
 */
-router.delete("/:id", adminOnly, deleteProperty);
+router.delete("/:id", protect, adminOnly, deleteProperty);
 
 export default router;

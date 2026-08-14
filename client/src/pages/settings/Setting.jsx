@@ -1,7 +1,9 @@
 // src/pages/settings/Settings.jsx
 
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import axios from 'axios';
 import {
   FiUser,
   FiBell,
@@ -117,26 +119,36 @@ const Settings = () => {
     }));
   };
 
+  const { updateProfile } = useContext(AuthContext);
+  const [saving, setSaving] = useState(false);
+
   const handleSave = async () => {
     try {
+      setSaving(true);
       const payload = {
         name: settings.fullName,
         email: settings.email,
         phone: settings.phone,
+        company: settings.company,
         avatar: settings.avatar,
+        // optionally other fields can be added here
       };
-      const response = await axios.put('/api/auth/profile', payload, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      console.log('Profile update response:', response.data);
-      // Update local storage user info if needed
-      if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
+      const updatedUser = await updateProfile(payload);
+      // sync local settings with saved data
+      setSettings((prev) => ({
+        ...prev,
+        fullName: updatedUser.name || prev.fullName,
+        email: updatedUser.email || prev.email,
+        phone: updatedUser.phone || prev.phone,
+        company: updatedUser.company || prev.company,
+        avatar: updatedUser.avatar || prev.avatar,
+      }));
       alert('Profile saved successfully!');
     } catch (err) {
-      console.error('Error updating profile:', err.response?.data || err.message);
-      alert('Failed to save profile: ' + (err.response?.data?.message || err.message));
+      console.error('Error updating profile:', err);
+      alert('Failed to save profile: ' + (err.message || 'Unknown error'));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -264,13 +276,13 @@ const Settings = () => {
             style={{ display: "none" }}
             onChange={handleAvatarChange}
           />
-          </div>
-          {settings.avatar && (
-            <div className="mt-4">
-              <img src={settings.avatar} alt="Avatar" className="h-20 w-20 rounded-full object-cover" />
-            </div>
-          )}
         </div>
+        {settings.avatar && (
+          <div className="mt-4">
+            <img src={settings.avatar} alt="Avatar" className="h-20 w-20 rounded-full object-cover" />
+          </div>
+        )}
+      </div>
 
         {/* Form */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -286,7 +298,15 @@ const Settings = () => {
           value={settings.email}
           onChange={(value) => handleChange("email", value)}
         />
-
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="mt-4 flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
+        >
+          <FiSave size={16} />
+          {saving ? 'Saving...' : 'Save'}
+        </button>
         <InputField
           label="Phone Number"
           value={settings.phone}
@@ -655,3 +675,4 @@ const Settings = () => {
 };
 
 export default Settings;
+export { Settings };

@@ -85,9 +85,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Update profile function – sends updated fields to backend and syncs AuthContext
+  const updateProfile = async (profileData) => {
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data.user);
+        // also persist updated user to localStorage (useEffect will handle)
+        return data.user;
+      } else {
+        throw new Error(data.message || 'Profile update failed');
+      }
+    } catch (err) {
+      console.error('Update profile error:', err);
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ token, user, login, logout, register, isAuthenticated: !!token }}
+      value={{ token, user, login, logout, register, updateProfile, isAuthenticated: !!token }}
     >
       {children}
     </AuthContext.Provider>

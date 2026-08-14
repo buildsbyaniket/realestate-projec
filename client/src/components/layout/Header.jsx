@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FiHome,
@@ -7,8 +7,31 @@ import {
   FiChevronDown,
   FiMenu,
 } from "react-icons/fi";
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ onMenuClick }) => {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [showMenu, setShowMenu] = React.useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchKey = (e) => {
+    if (e.key === 'Enter' && searchTerm.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+  const toggleMenu = () => setShowMenu((prev) => !prev);
+
+  const closeMenu = () => setShowMenu(false);
+
+
   return (
     <header className="w-full h-16 bg-white border-b border-gray-200">
       <div className="h-full flex items-center px-3 sm:px-4 lg:px-6">
@@ -98,6 +121,9 @@ const Header = ({ onMenuClick }) => {
             <input
               type="text"
               placeholder="Search Properties, Agents..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKey}
               className="
                 w-full
                 ml-2
@@ -167,10 +193,11 @@ const Header = ({ onMenuClick }) => {
             />
           </button>
 
-          {/* User Profile */}
+          {/* User Profile Button */}
           <button
             type="button"
             aria-label="User profile"
+            onClick={() => setShowProfileModal(true)}
             className="
               flex
               items-center
@@ -179,39 +206,36 @@ const Header = ({ onMenuClick }) => {
               rounded-md
               hover:bg-gray-50
               transition-colors
+              focus:outline-none
             "
           >
             {/* Avatar */}
-            <img
-              src="/avatar.png"
-              alt="John Doe"
-              className="
-                w-5
-                h-5
-                flex-shrink-0
-                rounded-full
-                object-cover
-                border
-                border-gray-300
-              "
-            />
-
-            {/* User Name */}
-
-            <span className="hidden md:block ml-2 text-sm font-medium text-gray-700 whitespace-nowrap">
-              John Doe
-            </span>
-
-            {/* Logout Link */}
-            <Link to="/logout" className="ml-4 text-sm text-red-600 hover:underline">
-              Logout
-            </Link>
-
-            {/* Dropdown */}
-            <FiChevronDown
-              size={14}
-              className="ml-1 text-gray-500 flex-shrink-0"
-            />
+            {user && user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-5 h-5 flex-shrink-0 rounded-full object-cover border border-gray-300"
+              />
+            ) : null}
+            {/* Profile Modal */}
+            {showProfileModal && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50">
+                <Link
+                  to="/settings"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setShowProfileModal(false)}
+                >
+                  Profile Settings
+                </Link>
+                <Link
+                  to="/logout"
+                  className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  onClick={() => setShowProfileModal(false)}
+                >
+                  Logout
+                </Link>
+              </div>
+            )}
           </button>
         </div>
       </div>
@@ -258,4 +282,4 @@ const Header = ({ onMenuClick }) => {
   );
 };
 
-export default Header;
+export default React.memo(Header);

@@ -15,6 +15,7 @@ import {
   FiUserPlus,
   FiX,
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 const Clients = () => {
   // ----- State management -----
@@ -43,7 +44,7 @@ const Clients = () => {
         window.location = "/login";
         return;
       }
-      const res = await fetch("/api/clients", {
+      const res = await fetch(`/api/clients`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -286,11 +287,19 @@ const Clients = () => {
                       </div>
                     </td>
                     {/* PROPERTIES */}
-                    <td className="px-6 py-4 text-center">
-                      <span className="inline-flex min-w-8 items-center justify-center rounded-lg bg-[#eef6f6] px-2 py-1 text-xs font-bold text-[#4e9f9d]">
-                        {client.properties?.length || client.properties}
-                      </span>
-                    </td>
+                      <td className="px-6 py-4 text-center">
+                        {client.properties && client.properties.length > 0 ? (
+                          <ul className="list-disc list-inside text-sm text-[#4e9f9d]">
+                            {client.properties.map((prop) => (
+                              <li key={prop._id}>{prop.title || prop.name || 'Property'}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="inline-flex min-w-8 items-center justify-center rounded-lg bg-[#eef6f6] px-2 py-1 text-xs font-bold text-[#4e9f9d]">
+                            0
+                          </span>
+                        )}
+                      </td>
                     {/* TYPE */}
                     <td className="px-6 py-4">
                       <span
@@ -309,9 +318,9 @@ const Clients = () => {
                     </td>
                     {/* ACTIONS */}
                     <td className="px-6 py-4 text-right">
-                      <button className="text-sm font-medium text-[#56aaa8] hover:underline">
+                      <Link to={`/clients/${client._id}`} className="text-sm font-medium text-[#56aaa8] hover:underline">
                         View
-                      </button>
+                      </Link>
                       <FiMoreVertical className="inline-block ml-2 text-[#b0b8bc]" />
                     </td>
                   </tr>

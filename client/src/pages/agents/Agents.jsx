@@ -18,7 +18,8 @@ import {
 import { AuthContext } from "../../context/AuthContext";
 
 const Agents = () => {
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [departmentFilter, setDepartmentFilter] = useState("All Departments");
   const [openMenu, setOpenMenu] = useState(null);
@@ -28,9 +29,16 @@ const Agents = () => {
   const { token } = useContext(AuthContext);
 
 
-  // fetch agents from backend
+// fetch agents from backend
+// Debounce search term to avoid excessive re‑renders
+useEffect(() => {
+  const handler = setTimeout(() => {
+    setDebouncedSearch(searchTerm);
+  }, 300);
+  return () => clearTimeout(handler);
+}, [searchTerm]);
   useEffect(() => {
-    console.log('Fetching agents with token:', token);
+
     fetch('/api/agents', {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -60,7 +68,7 @@ const Agents = () => {
 
   const filteredAgents = useMemo(() => {
     return agents.filter((agent) => {
-      const searchValue = search.toLowerCase().trim();
+      const searchValue = debouncedSearch.toLowerCase().trim();
 
       const matchesSearch =
         !searchValue ||
@@ -79,7 +87,7 @@ const Agents = () => {
 
       return matchesSearch && matchesStatus && matchesDepartment;
     });
-  }, [search, statusFilter, departmentFilter, agents]);
+  }, [debouncedSearch, statusFilter, departmentFilter, agents]);
 
     const activeAgents = agents.filter(agent => agent.status === "active").length;
 
@@ -189,8 +197,8 @@ const Agents = () => {
 
             <input
               type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search agents, email, location..."
               className="
                 h-11 w-full rounded-lg
@@ -283,9 +291,9 @@ const Agents = () => {
         </div>
       ) : (
         <EmptyAgentsState
-          search={search}
+          search={searchTerm}
           onClear={() => {
-            setSearch("");
+            setSearchTerm("");
             setStatusFilter("All Statuses");
             setDepartmentFilter("All Departments");
           }}

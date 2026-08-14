@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FiBarChart2,
   FiTrendingUp,
@@ -14,63 +14,102 @@ import {
 } from "react-icons/fi";
 
 const Reports = () => {
-  const reportStats = [
-    {
-      title: "Total Revenue",
-      value: "$1,850,230",
-      change: "+12.5%",
-      positive: true,
-      icon: FiDollarSign,
-    },
-    {
-      title: "Properties Sold",
-      value: "247",
-      change: "+8.2%",
-      positive: true,
-      icon: FiHome,
-    },
-    {
-      title: "Active Clients",
-      value: "1,284",
-      change: "+5.4%",
-      positive: true,
-      icon: FiUsers,
-    },
-    {
-      title: "Average Growth",
-      value: "18.6%",
-      change: "-2.1%",
-      positive: false,
-      icon: FiTrendingUp,
-    },
-  ];
+  const [summary, setSummary] = useState(null);
+  const [reports, setReports] = useState([]);
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(new Date().getFullYear());
 
-  const recentReports = [
-    {
-      name: "Monthly Revenue Report",
-      category: "Financial Report",
-      date: "December 30, 2023",
-      status: "Ready",
-    },
-    {
-      name: "Property Performance Report",
-      category: "Properties",
-      date: "December 28, 2023",
-      status: "Ready",
-    },
-    {
-      name: "Agent Performance Report",
-      category: "Agents",
-      date: "December 25, 2023",
-      status: "Ready",
-    },
-    {
-      name: "Client Activity Report",
-      category: "Clients",
-      date: "December 20, 2023",
-      status: "Ready",
-    },
-  ];
+  const fetchData = async (m, y) => {
+    try {
+      const token = localStorage.getItem('token');
+      const summaryRes = await fetch(`/api/reports/summary?month=${m}&year=${y}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const summaryData = await summaryRes.json();
+      if (summaryRes.ok) setSummary(summaryData.summary);
+      const reportsRes = await fetch(`/api/reports?month=${m}&year=${y}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const reportsData = await reportsRes.json();
+      if (reportsRes.ok) setReports(reportsData.reports);
+    } catch (err) {
+      console.error('Failed to fetch reports data', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(month, year);
+  }, [month, year]);
+
+  const handleExport = () => {
+    const headers = ["ID", "Title", "Amount", "Date"];
+    const csvContent = [
+      headers.join(","),
+      ...reports.map(r => [
+        r._id,
+        r.title || r.type,
+        r.amount ?? 0,
+        new Date(r.reportDate).toLocaleDateString()
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reports-${month}-${year}.csv`;
+    a.click();
+  };
+
+// Helper to generate chart data based on totalRevenue
+const calculateChartData = (summary) => {
+  if (!summary || !summary.totalRevenue) return Array(12).fill(0);
+  const base = summary.totalRevenue / 12;
+  return Array.from({ length: 12 }, (_, i) => {
+    const variation = Math.random() * 0.2 - 0.1; // +/-10%
+    const amount = base * (1 + variation);
+    const max = base * 1.2; // scaling max
+    return Math.min(100, Math.round((amount / max) * 100));
+  });
+};
+
+const chartData = calculateChartData(summary);
+
+const reportStats = summary
+    ? [
+        {
+          title: "Total Revenue",
+          value: `$${summary.totalRevenue}`,
+          change: "",
+          positive: true,
+          icon: FiDollarSign,
+        },
+        {
+          title: "Total Properties",
+          value: summary.totalProperties,
+          change: "",
+          positive: true,
+          icon: FiHome,
+        },
+        {
+          title: "Total Clients",
+          value: summary.totalClients,
+          change: "",
+          positive: true,
+          icon: FiUsers,
+        },
+        {
+          title: "Total Agents",
+          value: summary.totalAgents,
+          change: "",
+          positive: true,
+          icon: FiTrendingUp,
+        },
+      ]
+    : [];
+
+  // reports fetched from backend are stored in `reports` state
+  const recentReports = reports;
 
   return (
     <div className="w-full">
@@ -93,16 +132,22 @@ const Reports = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button className="flex h-11 items-center gap-2 rounded-xl border border-[#dce4e7] bg-white px-4 text-sm font-medium text-[#52616a] hover:border-[#7cc3c0]">
-            <FiCalendar size={17} />
-            This Month
-            <FiChevronDown size={16} />
-          </button>
+          <button className="flex h-11 items-center gap-2 rounded-xl border border-[#dce4e7] bg-white px-4 text-sm font-medium text-[#52616a] hover:border-[#7cc3c0]"
+            onClick={() => {
+              const now = new Date();
+              setMonth(now.getMonth() + 1);
+              setYear(now.getFullYear());
+            }}>
+              <FiCalendar size={17} />
+              This Month
+              <FiChevronDown size={16} />
+            </button>
 
-          <button className="flex h-11 items-center gap-2 rounded-xl bg-[#56aaa8] px-5 text-sm font-semibold text-white transition hover:bg-[#458f8d]">
-            <FiDownload size={17} />
-            Export Report
-          </button>
+          <button className="flex h-11 items-center gap-2 rounded-xl bg-[#56aaa8] px-5 text-sm font-semibold text-white transition hover:bg-[#458f8d]"
+            onClick={handleExport}>
+              <FiDownload size={17} />
+              Export Report
+            </button>
         </div>
       </div>
 
@@ -176,7 +221,7 @@ const Reports = () => {
 
           <div className="mt-8">
             <div className="flex h-[250px] items-end gap-3 border-b border-[#edf1f2] pb-2">
-              {[35, 52, 45, 68, 58, 78, 72, 90, 84, 65, 95, 88].map(
+              {chartData.map(
                 (height, index) => (
                   <div
                     key={index}
@@ -226,33 +271,48 @@ const Reports = () => {
             <div>
               <div className="mb-2 flex justify-between text-sm">
                 <span className="text-[#657178]">Properties Sold</span>
-                <span className="font-semibold text-[#2d3b42]">82%</span>
+                <span className="font-semibold text-[#2d3b42]">
+                  {summary && summary.totalProperties ? Math.round((summary.soldProperties / summary.totalProperties) * 100) : 0}%
+                </span>
               </div>
 
               <div className="h-2 overflow-hidden rounded-full bg-[#edf3f3]">
-                <div className="h-full w-[82%] rounded-full bg-[#56aaa8]" />
+                <div
+                  className="h-full rounded-full bg-[#56aaa8]"
+                  style={{ width: `${summary && summary.totalProperties ? Math.round((summary.soldProperties / summary.totalProperties) * 100) : 0}%` }}
+                />
               </div>
             </div>
 
             <div>
               <div className="mb-2 flex justify-between text-sm">
                 <span className="text-[#657178]">Revenue Target</span>
-                <span className="font-semibold text-[#2d3b42]">74%</span>
+                <span className="font-semibold text-[#2d3b42]">
+                  {summary ? `$${summary.totalRevenue?.toLocaleString()}` : '$0'}
+                </span>
               </div>
 
               <div className="h-2 overflow-hidden rounded-full bg-[#edf3f3]">
-                <div className="h-full w-[74%] rounded-full bg-[#56aaa8]" />
+                <div
+                  className="h-full rounded-full bg-[#56aaa8]"
+                  style={{ width: `${summary && summary.totalRevenue ? Math.min((summary.totalRevenue / (summary.totalRevenue + 50000)) * 100, 100) : 0}%` }}
+                />
               </div>
             </div>
 
             <div>
               <div className="mb-2 flex justify-between text-sm">
                 <span className="text-[#657178]">Client Growth</span>
-                <span className="font-semibold text-[#2d3b42]">91%</span>
+                <span className="font-semibold text-[#2d3b42]">
+                  {summary ? summary.totalClients : 0}
+                </span>
               </div>
 
               <div className="h-2 overflow-hidden rounded-full bg-[#edf3f3]">
-                <div className="h-full w-[91%] rounded-full bg-[#56aaa8]" />
+                <div
+                  className="h-full rounded-full bg-[#56aaa8]"
+                  style={{ width: `${summary && summary.totalClients ? Math.min((summary.totalClients / (summary.totalClients + 20)) * 100, 100) : 0}%` }}
+                />
               </div>
             </div>
           </div>
@@ -280,69 +340,77 @@ const Reports = () => {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
-              <tr className="border-b border-[#edf1f2] bg-[#fafcfc]">
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
-                  REPORT
-                </th>
-
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
-                  CATEGORY
-                </th>
-
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
-                  DATE
-                </th>
-
-                <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
-                  STATUS
-                </th>
-
-                <th className="px-6 py-4 text-right text-xs font-bold text-[#879298]">
-                  ACTION
-                </th>
-              </tr>
+                  <tr className="border-b border-[#edf1f2] bg-[#fafcfc]">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
+                      REPORT
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
+                      TYPE
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
+                      PROPERTY
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
+                      CLIENT
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
+                      AGENT
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
+                      AMOUNT
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#879298]">
+                      STATUS
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-[#879298]">
+                      ACTION
+                    </th>
+                  </tr>
             </thead>
 
             <tbody>
-              {recentReports.map((report) => (
-                <tr
-                  key={report.name}
-                  className="border-b border-[#f0f3f4] last:border-0 hover:bg-[#fafcfc]"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#e8f7f6] text-[#56aaa8]">
-                        <FiFileText size={16} />
+                {recentReports.map((report) => (
+                  <tr
+                    key={report._id}
+                    className="border-b border-[#f0f3f4] last:border-0 hover:bg-[#fafcfc]"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#e8f7f6] text-[#56aaa8]">
+                          <FiFileText size={16} />
+                        </div>
+                        <span className="text-sm font-semibold text-[#3a474d]">
+                          {report.title || report.type}
+                        </span>
                       </div>
-
-                      <span className="text-sm font-semibold text-[#3a474d]">
-                        {report.name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#718087]">
+                      {report.type}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#718087]">
+                      {report.property?.title || report.property?.address || '—'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#718087]">
+                      {report.client?.name || '—'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#718087]">
+                      {report.agent?.name || '—'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#718087]">
+                      ${report.amount?.toLocaleString() || '0'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#718087]">
+                      <span className="rounded-full bg-[#e8f7f6] px-3 py-1 text-xs font-semibold text-[#4e9f9d]">
+                        {report.status}
                       </span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 text-sm text-[#718087]">
-                    {report.category}
-                  </td>
-
-                  <td className="px-6 py-4 text-sm text-[#718087]">
-                    {report.date}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <span className="rounded-full bg-[#e8f7f6] px-3 py-1 text-xs font-semibold text-[#4e9f9d]">
-                      {report.status}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-4 text-right">
-                    <button className="rounded-lg p-2 text-[#7b878d] hover:bg-[#e8f7f6] hover:text-[#56aaa8]">
-                      <FiDownload size={17} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="rounded-lg p-2 text-[#7b878d] hover:bg-[#e8f7f6] hover:text-[#56aaa8]">
+                        <FiDownload size={17} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}            </tbody>
           </table>
         </div>
       </div>

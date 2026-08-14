@@ -33,7 +33,8 @@ import Reports from "./pages/reports/Reports";
 import PropertyDetail from "./pages/properties/PropertyDetail";
 import PropertyForm from "./pages/properties/PropertyForm";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import Settings from "./pages/settings/Setting.jsx";
+import ClientDetails from "./pages/clients/ClientDetails";
+import Settings from "./pages/settings/Setting";
 /* =========================================================
    SETTINGS PAGE
 ========================================================= */
@@ -135,11 +136,12 @@ const DashboardRoutes = ({
           path="/clients"
           element={<Clients />}
         />
-
+          <Route path="/clients/:id" element={<ClientDetails />} />
+          
         {/* Reports */}
         <Route
           path="/reports"
-          element={<Reports />}
+          element={<AdminRoute><Reports /></AdminRoute>}
         />
 
         {/* Settings */}

@@ -92,6 +92,12 @@ const clientSchema = new mongoose.Schema(
       maxlength: [2000, "Notes cannot exceed 2000 characters"],
       default: "",
     },
+    // Status of the client
+    status: {
+      type: String,
+      enum: ["lead", "active", "inactive", "converted"],
+      default: "lead",
+    },
 
     // Client ↔ Agent
     agent: {
@@ -120,9 +126,36 @@ const clientSchema = new mongoose.Schema(
     },
   },
   {
+    // Enable virtuals in JSON output
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
     timestamps: true,
   }
 );
+
+// Virtual for UI compatibility: client.type
+clientSchema.virtual('type').get(function() {
+  return this.clientType;
+});
+
+// Virtual for joined date (same as createdAt)
+clientSchema.virtual('joined').get(function() {
+  return this.createdAt;
+});
+
+// Virtual for avatar initials
+clientSchema.virtual('initials').get(function() {
+  if (!this.name) return '';
+  return this.name.split(' ').map(n => n[0]).join('').toUpperCase();
+});
+
+// Simple virtual color based on first letter hash
+clientSchema.virtual('color').get(function() {
+  const colors = ['bg-rose-100 text-rose-600','bg-indigo-100 text-indigo-600','bg-teal-100 text-teal-600','bg-amber-100 text-amber-600'];
+  if (!this.name) return colors[0];
+  const idx = this.name.charCodeAt(0) % colors.length;
+  return colors[idx];
+});
 
 const Client =
   mongoose.models.Client ||

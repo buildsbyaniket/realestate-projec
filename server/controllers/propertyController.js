@@ -93,6 +93,7 @@ export const getProperties = async (req, res) => {
       city,
       minPrice,
       maxPrice,
+      agentId,
       page = 1,
       limit = 10,
     } = req.query;
@@ -100,6 +101,11 @@ export const getProperties = async (req, res) => {
     const filter = {
       isActive: true,
     };
+
+    // Agent filter
+    if (agentId) {
+      filter.agent = agentId;
+    }
 
     // Search
     if (search) {
