@@ -10,7 +10,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme";
 
 // Layout
-import DashboardLayout from "./components/layout/Dashboardlayout";
+import DashboardLayout from "./components/layout/DashboardLayout";
 
 // Authentication pages
 import Login from "./pages/auth/Login";
