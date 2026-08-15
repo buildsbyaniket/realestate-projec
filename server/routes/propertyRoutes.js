@@ -10,6 +10,7 @@ import {
 } from "../controllers/propertyController.js";
 
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import { upload } from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ router.get("/:id", protect, getProperty);
 POST /api/properties
 Create property
 */
-router.post("/", protect, adminOnly, createProperty);
+router.post("/", protect, adminOnly, upload.array('images', 10), createProperty);
 
 /*
 PUT /api/properties/:id

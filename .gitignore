@@ -28,3 +28,5 @@ desktop.ini
 
 # Coverage
 coverage/
+uploads/*
+!uploads/.gitkeep

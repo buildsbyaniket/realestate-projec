@@ -23,8 +23,16 @@ const storage = multer.diskStorage({
 
 // Accept only common image types, limit size to 5 MB per file
 const fileFilter = (req, file, cb) => {
-  const allowed = /\.(jpeg|jpg|png|gif)$/i;
-  if (allowed.test(file.originalname) && allowed.test(file.mimetype)) {
+  console.log('Multer fileFilter - inspecting file:', {
+    originalname: file.originalname,
+    mimetype: file.mimetype,
+    size: file.size,
+  });
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExt = ['.jpeg', '.jpg', '.png', '.gif'];
+  const isExtValid = allowedExt.includes(ext);
+  const isMimeValid = file.mimetype && file.mimetype.startsWith('image/');
+  if (isExtValid && isMimeValid) {
     cb(null, true);
   } else {
     cb(new Error('Only image files (jpeg, png, gif) are allowed'), false);

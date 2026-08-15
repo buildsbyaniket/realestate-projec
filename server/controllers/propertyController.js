@@ -9,6 +9,10 @@ POST /api/properties
 
 export const createProperty = async (req, res) => {
   try {
+    console.log('--- createProperty request start ---');
+    console.log('req.body:', req.body);
+    console.log('req.files:', req.files);
+    // Fields from multipart/form-data are in req.body (strings)
     const {
       title,
       description,
@@ -24,20 +28,23 @@ export const createProperty = async (req, res) => {
       state,
       zipCode,
       country,
-      images,
-      featuredImage,
       agent,
       isFeatured,
-    } = req.body || {};
+    } = req.body;
+
+
 
     // Validation
     if (!title || !propertyType || price === undefined || !address || !city) {
       return res.status(400).json({
         success: false,
-        message:
-          "Title, property type, price, address and city are required",
+        message: "Title, property type, price, address and city are required",
       });
     }
+
+    // Process uploaded files (multer stores them in req.files)
+    const imagePaths = (req.files || []).map((file) => `/uploads/${file.filename}`);
+    const featuredImage = imagePaths[0] || "";
 
     const property = await Property.create({
       title,
@@ -54,10 +61,10 @@ export const createProperty = async (req, res) => {
       state,
       zipCode,
       country,
-      images,
+      images: imagePaths,
       featuredImage,
       agent: agent || null,
-      isFeatured,
+      isFeatured: isFeatured === "true" || isFeatured === true,
       createdBy: req.user._id,
     });
 
@@ -68,7 +75,6 @@ export const createProperty = async (req, res) => {
     });
   } catch (error) {
     console.error("Create property error:", error);
-
     return res.status(500).json({
       success: false,
       message: "Failed to create property",

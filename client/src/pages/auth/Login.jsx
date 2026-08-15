@@ -1,22 +1,31 @@
 // src/pages/auth/Login.jsx
 
-import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-const API_URL = import.meta.env.VITE_API_URL;
+import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  FiMail,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiArrowRight,
+  FiHome,
+  FiShield,
+  FiCheckCircle,
+} from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
-  const navigate = useNavigate();
-
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,21 +36,25 @@ const Login = () => {
     }));
   };
 
-  const { login } = useContext(AuthContext);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // basic validation
     if (!formData.email || !formData.password) {
-      alert('Please enter both email and password');
+      alert("Please enter both email and password");
       return;
     }
 
     try {
-      await login(formData.email.trim().toLowerCase(), formData.password);
+      setIsLoading(true);
+
+      await login(
+        formData.email.trim().toLowerCase(),
+        formData.password
+      );
     } catch (err) {
-      alert(err.message || 'Login failed');
+      alert(err.message || "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,533 +67,382 @@ const Login = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "30px",
-        position: "relative",
-        overflow: "hidden",
-        background:
-          "radial-gradient(circle at 12% 8%, rgba(87,190,255,0.40), transparent 32%), radial-gradient(circle at 90% 90%, rgba(74,207,198,0.20), transparent 32%), linear-gradient(135deg, #e7f7ff 0%, #f6fbff 48%, #effcfb 100%)",
-        boxSizing: "border-box",
-      }}
-    >
-      {/* Background glow */}
-      <div
-        style={{
-          position: "absolute",
-          width: "300px",
-          height: "300px",
-          top: "-120px",
-          left: "-80px",
-          borderRadius: "50%",
-          background: "rgba(75,174,255,0.20)",
-          filter: "blur(70px)",
-          pointerEvents: "none",
-        }}
-      />
+    <div className="min-h-screen bg-[#f7faf9] flex items-center justify-center p-4 sm:p-6 lg:p-8">
 
-      <div
-        style={{
-          position: "absolute",
-          width: "280px",
-          height: "280px",
-          right: "-100px",
-          bottom: "-120px",
-          borderRadius: "50%",
-          background: "rgba(53,190,177,0.18)",
-          filter: "blur(70px)",
-          pointerEvents: "none",
-        }}
-      />
+      {/* Main Container */}
+      <div className="w-full max-w-6xl min-h-[680px] bg-white rounded-[28px] overflow-hidden shadow-[0_25px_80px_rgba(20,60,50,0.12)] border border-[#e8efec] flex flex-col lg:flex-row">
 
-      {/* Login Card */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-          width: "100%",
-          maxWidth: "448px",
-          padding: "25px 40px 36px",
-          borderRadius: "15px",
-          border: "1px solid rgba(255,255,255,0.80)",
-          background: "rgba(255,255,255,0.74)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          boxShadow:
-            "0 25px 60px rgba(30,65,90,0.14), 0 5px 20px rgba(30,65,90,0.08)",
-          boxSizing: "border-box",
-          animation: "loginCardEnter 0.6s ease-out",
-        }}
-      >
-        {/* =========================
-            LOGO
-        ========================= */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            marginBottom: "38px",
-            color: "#182b3d",
-            fontSize: "20px",
-            fontWeight: "700",
-          }}
-        >
-          {/* Propertyse Logo */}
-          <div
-            style={{
-              position: "relative",
-              width: "29px",
-              height: "30px",
-              flexShrink: 0,
-            }}
-          >
-            {/* Roof */}
-            <div
-              style={{
-                position: "absolute",
-                left: "5px",
-                top: "2px",
-                width: "19px",
-                height: "19px",
-                borderLeft: "6px solid #14a6a3",
-                borderTop: "6px solid #14a6a3",
-                transform: "rotate(45deg)",
-              }}
-            />
+        {/* =====================================================
+            LEFT SIDE - REAL ESTATE VISUAL
+        ====================================================== */}
+        <div className="relative hidden lg:flex lg:w-[52%] overflow-hidden bg-[#123b35]">
 
-            {/* House */}
-            <div
-              style={{
-                position: "absolute",
-                left: "6px",
-                bottom: "2px",
-                width: "19px",
-                height: "19px",
-                border: "5px solid #159e9b",
-                background: "#ffffff",
-                clipPath:
-                  "polygon(0 35%, 50% 0, 100% 35%, 100% 100%, 0 100%)",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
+          {/* Background Image */}
+          <img
+            src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1600&q=90"
+            alt="Luxury modern property"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
 
-          <span>Propertyse</span>
-        </div>
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#092c27]/90 via-[#0b4038]/55 to-[#0c211e]/80" />
 
-        {/* =========================
-            HEADING
-        ========================= */}
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: "26px",
-          }}
-        >
-          <h1
-            style={{
-              margin: 0,
-              color: "#17283a",
-              fontSize: "21px",
-              fontWeight: "700",
-              lineHeight: "1.3",
-            }}
-          >
-            Sign In to Your Account
-          </h1>
+          {/* Decorative glow */}
+          <div className="absolute -top-32 -left-32 w-80 h-80 bg-[#43c7a7]/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-32 -right-20 w-96 h-96 bg-[#54d8bc]/20 rounded-full blur-3xl" />
 
-          <p
-            style={{
-              margin: "6px 0 0",
-              color: "#66747f",
-              fontSize: "11.5px",
-              lineHeight: "1.45",
-            }}
-          >
-            Welcome back! Enter your credentials to access
-            <br />
-            your properties.
-          </p>
-        </div>
+          {/* Content */}
+          <div className="relative z-10 flex flex-col justify-between w-full p-10 xl:p-14 text-white">
 
-        {/* =========================
-            FORM
-        ========================= */}
-        <form onSubmit={handleSubmit}>
-          {/* EMAIL */}
-          <div
-            style={{
-              marginBottom: "13px",
-            }}
-          >
-            <label
-              htmlFor="email"
-              style={{
-                display: "block",
-                marginBottom: "5px",
-                color: "#344453",
-                fontSize: "11px",
-                fontWeight: "500",
-              }}
-            >
-              Email Address
-            </label>
+            {/* Brand */}
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                <FiHome size={22} />
+              </div>
 
-            <div
-              style={{
-                position: "relative",
-                display: "flex",
-                alignItems: "center",
-                height: "40px",
-                border: "1px solid #d1dce5",
-                borderRadius: "7px",
-                background: "rgba(250,252,254,0.88)",
-                boxShadow:
-                  "inset 0 1px 2px rgba(40,70,90,0.03)",
-                boxSizing: "border-box",
-              }}
-            >
-              <FiMail
-                size={17}
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  color: "#687987",
-                  pointerEvents: "none",
-                }}
-              />
-
-              <input
-                id="email"
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="e.g., alex@email.com"
-                autoComplete="email"
-                required
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  padding: "0 12px 0 35px",
-                  border: "none",
-                  outline: "none",
-                  background: "transparent",
-                  color: "#263746",
-                  fontSize: "11.5px",
-                  boxSizing: "border-box",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* PASSWORD */}
-          <div
-            style={{
-              marginBottom: "13px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "5px",
-              }}
-            >
-              <label
-                htmlFor="password"
-                style={{
-                  color: "#344453",
-                  fontSize: "11px",
-                  fontWeight: "500",
-                }}
-              >
-                Password
-              </label>
-
-              <Link
-                to="/forgot-password"
-                style={{
-                  color: "#16a6a3",
-                  fontSize: "10.5px",
-                  fontWeight: "500",
-                  textDecoration: "none",
-                }}
-              >
-                Forgot Password?
-              </Link>
+              <div>
+                <h2 className="text-xl font-bold tracking-tight">
+                  PropManage
+                </h2>
+                <p className="text-[11px] text-white/65">
+                  Smart Property Management
+                </p>
+              </div>
             </div>
 
-            <div
-              style={{
-                position: "relative",
-                display: "flex",
-                alignItems: "center",
-                height: "40px",
-                border: "1px solid #d1dce5",
-                borderRadius: "7px",
-                background: "rgba(250,252,254,0.88)",
-                boxSizing: "border-box",
-              }}
-            >
-              <FiLock
-                size={17}
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  color: "#687987",
-                  pointerEvents: "none",
-                }}
-              />
+            {/* Main Message */}
+            <div className="max-w-xl">
 
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••••••"
-                autoComplete="current-password"
-                required
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  padding: "0 40px 0 35px",
-                  border: "none",
-                  outline: "none",
-                  background: "transparent",
-                  color: "#263746",
-                  fontSize: "11.5px",
-                  boxSizing: "border-box",
-                }}
-              />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md mb-6">
+                <span className="w-2 h-2 rounded-full bg-[#62e0bc] animate-pulse" />
+                <span className="text-xs font-medium text-white/85">
+                  Trusted Property Platform
+                </span>
+              </div>
+
+              <h1 className="text-4xl xl:text-5xl font-bold leading-[1.08] tracking-tight">
+                Find a place
+                <br />
+                <span className="text-[#69dfc0]">
+                  you'll love.
+                </span>
+              </h1>
+
+              <p className="mt-6 text-sm xl:text-base leading-7 text-white/70 max-w-md">
+                Discover premium properties, connect with trusted
+                agents and manage your real-estate journey from
+                one powerful platform.
+              </p>
+
+              {/* Benefits */}
+              <div className="mt-8 space-y-3">
+
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+                    <FiCheckCircle size={15} className="text-[#69dfc0]" />
+                  </div>
+
+                  <span className="text-sm text-white/80">
+                    Verified properties and agents
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+                    <FiCheckCircle size={15} className="text-[#69dfc0]" />
+                  </div>
+
+                  <span className="text-sm text-white/80">
+                    Simple and secure property management
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+                    <FiCheckCircle size={15} className="text-[#69dfc0]" />
+                  </div>
+
+                  <span className="text-sm text-white/80">
+                    Connect with professional agents
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Bottom */}
+            <div className="flex items-center justify-between border-t border-white/15 pt-6">
+
+              <div className="flex items-center gap-2 text-xs text-white/55">
+                <FiShield size={14} />
+                Secure & trusted platform
+              </div>
+
+              <div className="text-xs text-white/45">
+                © {new Date().getFullYear()} PropManage
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        {/* =====================================================
+            RIGHT SIDE - LOGIN
+        ====================================================== */}
+        <div className="w-full lg:w-[48%] flex items-center justify-center px-6 py-10 sm:px-10 lg:px-12 xl:px-16">
+
+          <div className="w-full max-w-md">
+
+            {/* Mobile Logo */}
+            <div className="flex lg:hidden items-center gap-3 mb-10">
+
+              <div className="w-10 h-10 rounded-xl bg-[#e7f7f2] text-[#159b82] flex items-center justify-center">
+                <FiHome size={20} />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-bold text-[#173b34]">
+                  PropManage
+                </h2>
+
+                <p className="text-[10px] text-gray-500">
+                  Smart Property Management
+                </p>
+              </div>
+
+            </div>
+
+            {/* Heading */}
+            <div className="mb-8">
+
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#159b82] mb-3">
+                Welcome Back
+              </p>
+
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#18332f] tracking-tight">
+                Sign in to your
+                <br />
+                account
+              </h1>
+
+              <p className="mt-3 text-sm leading-6 text-[#74827f]">
+                Enter your details to access your PropManage
+                dashboard and properties.
+              </p>
+
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+
+              {/* Email */}
+              <div>
+
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-[#344541] mb-2"
+                >
+                  Email address
+                </label>
+
+                <div className="relative">
+
+                  <FiMail
+                    size={18}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#82918d] pointer-events-none"
+                  />
+
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    required
+                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#dce6e2] bg-[#fbfdfc] text-sm text-[#20332f] outline-none transition-all placeholder:text-[#a0aaa7] focus:border-[#159b82] focus:ring-4 focus:ring-[#159b82]/10"
+                  />
+
+                </div>
+
+              </div>
+
+              {/* Password */}
+              <div>
+
+                <div className="flex items-center justify-between mb-2">
+
+                  <label
+                    htmlFor="password"
+                    className="text-sm font-medium text-[#344541]"
+                  >
+                    Password
+                  </label>
+
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs font-medium text-[#159b82] hover:text-[#0d7764] transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+
+                </div>
+
+                <div className="relative">
+
+                  <FiLock
+                    size={18}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#82918d] pointer-events-none"
+                  />
+
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    required
+                    className="w-full h-12 pl-11 pr-12 rounded-xl border border-[#dce6e2] bg-[#fbfdfc] text-sm text-[#20332f] outline-none transition-all placeholder:text-[#a0aaa7] focus:border-[#159b82] focus:ring-4 focus:ring-[#159b82]/10"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword((previous) => !previous)
+                    }
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#82918d] hover:text-[#159b82] transition-colors"
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <FiEyeOff size={18} />
+                    ) : (
+                      <FiEye size={18} />
+                    )}
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* Sign In */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="group w-full h-12 rounded-xl bg-[#159b82] hover:bg-[#10816c] text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#159b82]/20 hover:shadow-xl hover:shadow-[#159b82]/25 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in
+                    <FiArrowRight
+                      size={17}
+                      className="group-hover:translate-x-1 transition-transform"
+                    />
+                  </>
+                )}
+
+              </button>
+
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 my-7">
+
+              <div className="h-px flex-1 bg-[#e4ebe8]" />
+
+              <span className="text-xs text-[#8b9794]">
+                Or continue with
+              </span>
+
+              <div className="h-px flex-1 bg-[#e4ebe8]" />
+
+            </div>
+
+            {/* Social buttons */}
+            <div className="grid grid-cols-2 gap-3">
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword((previous) => !previous)
-                }
-                aria-label={
-                  showPassword
-                    ? "Hide password"
-                    : "Show password"
-                }
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "none",
-                  padding: 0,
-                  background: "transparent",
-                  color: "#75838d",
-                  cursor: "pointer",
-                }}
+                onClick={handleGoogleLogin}
+                className="h-11 rounded-xl border border-[#dce6e2] bg-white hover:bg-[#f8fbfa] flex items-center justify-center gap-2 text-sm font-medium text-[#354440] transition-colors"
               >
-                {showPassword ? (
-                  <FiEyeOff size={17} />
-                ) : (
-                  <FiEye size={17} />
-                )}
+                <FcGoogle size={19} />
+                Google
               </button>
+
+              <button
+                type="button"
+                onClick={handleAppleLogin}
+                className="h-11 rounded-xl border border-[#dce6e2] bg-white hover:bg-[#f8fbfa] flex items-center justify-center gap-2 text-sm font-medium text-[#354440] transition-colors"
+              >
+                <FaApple size={19} />
+                Apple
+              </button>
+
             </div>
+
+            {/* Register */}
+            <div className="text-center mt-8">
+
+              <p className="text-sm text-[#74827f]">
+                Don't have an account?{" "}
+
+                <Link
+                  to="/register"
+                  className="font-semibold text-[#159b82] hover:text-[#0d7764] transition-colors"
+                >
+                  Create account
+                </Link>
+              </p>
+
+            </div>
+
+            {/* Security */}
+            <div className="flex items-center justify-center gap-2 mt-7 text-[11px] text-[#9aa6a3]">
+              <FiShield size={13} />
+              Your information is protected and secure
+            </div>
+
           </div>
-
-          {/* SIGN IN */}
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              height: "40px",
-              marginTop: "5px",
-              border: "none",
-              borderRadius: "7px",
-              background:
-                "linear-gradient(135deg, #17aaa5, #1aaea7)",
-              color: "#ffffff",
-              fontSize: "11.5px",
-              fontWeight: "500",
-              cursor: "pointer",
-              boxShadow:
-                "0 5px 12px rgba(20,166,163,0.25)",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform =
-                "translateY(-1px)";
-              e.currentTarget.style.boxShadow =
-                "0 8px 18px rgba(20,166,163,0.30)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow =
-                "0 5px 12px rgba(20,166,163,0.25)";
-            }}
-          >
-            Sign In
-          </button>
-        </form>
-
-        {/* =========================
-            DIVIDER
-        ========================= */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            margin: "15px 0",
-          }}
-        >
-          <span
-            style={{
-              flex: 1,
-              height: "1px",
-              background: "#dce3e8",
-            }}
-          />
-
-          <span
-            style={{
-              color: "#6c7881",
-              fontSize: "10px",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Or continue with
-          </span>
-
-          <span
-            style={{
-              flex: 1,
-              height: "1px",
-              background: "#dce3e8",
-            }}
-          />
         </div>
 
-        {/* =========================
-            SOCIAL LOGIN
-        ========================= */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "8px",
-          }}
-        >
-          {/* Google */}
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            style={{
-              height: "33px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "7px",
-              border: "1px solid #d6e0e5",
-              borderRadius: "18px",
-              background: "rgba(255,255,255,0.65)",
-              color: "#273746",
-              fontSize: "11px",
-              fontWeight: "500",
-              cursor: "pointer",
-            }}
-          >
-            <FcGoogle size={18} />
-            <span>Google</span>
-          </button>
-
-          {/* Apple */}
-          <button
-            type="button"
-            onClick={handleAppleLogin}
-            style={{
-              height: "33px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "7px",
-              border: "1px solid #d6e0e5",
-              borderRadius: "18px",
-              background: "rgba(255,255,255,0.65)",
-              color: "#273746",
-              fontSize: "11px",
-              fontWeight: "500",
-              cursor: "pointer",
-            }}
-          >
-            <FaApple size={18} />
-            <span>Apple</span>
-          </button>
-        </div>
-
-        {/* =========================
-            CREATE ACCOUNT
-        ========================= */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "4px",
-            marginTop: "17px",
-            color: "#53616c",
-            fontSize: "10px",
-          }}
-        >
-          <span>Don't have an account?</span>
-
-          <Link
-            to="/register"
-            style={{
-              color: "#159f9d",
-              fontWeight: "500",
-              textDecoration: "none",
-            }}
-          >
-            Create Account
-          </Link>
-        </div>
       </div>
 
       {/* Animation */}
       <style>
         {`
-          @keyframes loginCardEnter {
+          @keyframes loginPageEnter {
             from {
               opacity: 0;
-              transform: translateY(20px) scale(0.98);
+              transform: translateY(18px);
             }
 
             to {
               opacity: 1;
-              transform: translateY(0) scale(1);
+              transform: translateY(0);
             }
           }
 
-          @media (max-width: 520px) {
-            .login-card {
-              padding: 24px 25px 30px !important;
-            }
-          }
-
-          @media (max-width: 380px) {
-            .login-card {
-              padding: 22px 20px 27px !important;
+          @media (max-width: 640px) {
+            body {
+              background: #f7faf9;
             }
           }
         `}
       </style>
+
     </div>
   );
 };

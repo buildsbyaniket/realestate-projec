@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -194,6 +195,8 @@ const App = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* DASHBOARD APPLICATION */}
+          <Route path="/" element={<LandingPage />} />
+      {/* PUBLIC LANDING PAGE */}
           <Route
             path="/*"
             element={

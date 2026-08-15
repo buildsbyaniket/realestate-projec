@@ -32,11 +32,17 @@ app.use(
 
 app.use(express.json());
 
-// Log incoming requests for debugging
-app.use((req, res, next) => {
-  console.log(`🔹 Incoming ${req.method} ${req.url}`);
-  next();
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Serve uploaded images
+app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
+// Fallback for any unknown upload paths to avoid proxy 502 errors
+app.use('/uploads/*', (req, res) => {
+  res.status(404).json({ success: false, message: 'Image not found' });
 });
+
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -118,15 +124,20 @@ START SERVER
 =========================================================
 */
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async () => {
   await connectDatabase();
-
+  const PORT = Number(process.env.PORT) || 5000;
   app.listen(PORT, () => {
-    console.log(
-      `Server running on http://localhost:${PORT}`
-    );
+    console.log(`Server running on http://localhost:${PORT}`);
+  }).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Please free the port and restart.`);
+    } else {
+      console.error('Server error:', err);
+    }
+    process.exit(1);
   });
 };
 
