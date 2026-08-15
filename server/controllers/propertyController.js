@@ -43,7 +43,9 @@ export const createProperty = async (req, res) => {
     }
 
     // Process uploaded files (multer stores them in req.files)
-    const imagePaths = (req.files || []).map((file) => `/uploads/${file.filename}`);
+    // Build absolute URLs for uploaded images
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const imagePaths = (req.files || []).map((file) => `${baseUrl}/uploads/${file.filename}`);
     const featuredImage = imagePaths[0] || "";
 
     const property = await Property.create({

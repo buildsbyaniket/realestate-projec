@@ -1,6 +1,6 @@
 import Client from "../models/Client.js";
 import Agent from "../models/Agent.js";
-import Property from "../models/Property.js";
+import Property from "../models/property.js";
 
 /*
 =========================================================

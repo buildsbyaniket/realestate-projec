@@ -4,7 +4,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-import User from "../models/user.js";
+import User from "../models/User.js";
 
 import sendEmail from "../utils/sendEmail.js";
 /* =========================================================
