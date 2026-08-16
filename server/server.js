@@ -54,21 +54,15 @@ ROUTES
 */
 
 app.use("/api/auth", authRoutes);
-
+console.log('✅ Auth routes mounted');
 app.use("/api/clients", clientRoutes);
-
 app.use("/api/properties", propertyRoutes);
-
 app.use("/api/agents", agentRoutes);
-
 app.use("/api/enquiries", enquiryRoutes);
-
 // Reports
 app.use("/api/reports", reportRoutes);
-
 // Admin routes
 app.use("/api/admin", adminRoutes);
-
 // Settings routes
 app.use("/api/settings", settingsRoutes);
 
@@ -87,6 +81,7 @@ app.get("/", (req, res) => {
 
 // 404 handler for unknown routes
 app.all("*", (req, res) => {
+  console.log('⚠️ 404 handler reached for', req.originalUrl);
   res.status(404).json({
     success: false,
     message: "API endpoint not found",
