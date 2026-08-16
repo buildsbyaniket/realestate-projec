@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const { register } = useContext(AuthContext);
+const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
@@ -33,29 +35,13 @@ const Register = () => {
 
     try {
       setLoading(true);
-
-      // Keep your existing registration API here.
-      // Example:
-      //
-      // const response = await fetch("/api/auth/register", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     name: formData.name,
-      //     email: formData.email,
-      //     phone: formData.phone,
-      //     password: formData.password,
-      //   }),
-      // });
-
-      console.log("Registration data:", formData);
-
-      navigate("/login");
-
+      console.log("[REGISTER] submit started");
+      // Call register from AuthContext which will also log in the user on success
+      await register(formData.name, formData.email, formData.password);
+      console.log("[REGISTER] registration succeeded, user logged in");
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("[REGISTER] registration error:", error);
+      alert(error.message || "Registration failed");
     } finally {
       setLoading(false);
     }
