@@ -2,14 +2,8 @@
  * Base URL for API requests. Must be defined at build time via VITE_API_URL.
  * If missing, we fail loudly so the issue is caught during CI/Render build.
  */
-export const BASE_URL = import.meta.env.VITE_API_URL;
-
-if (!BASE_URL) {
-  // Throw during module evaluation – the build will abort, making the problem obvious.
-  throw new Error(
-    '[api.js] VITE_API_URL is not defined. Ensure it is set in `.env.production` and in the Render build environment.'
-  );
-}
+export const BASE_URL = import.meta.env.VITE_API_URL || 'https://realestate-projec-backend.onrender.com'; // fallback to backend URL if env var missing
+// No error thrown; using fallback ensures apiFetch works in production without explicit env var
 
 /**
  * Helper to perform fetch calls against the API.

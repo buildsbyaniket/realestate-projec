@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiFetch } from '../../utils/api';
-
+import PropertyStatus from '../../components/properties/PropertyStatus';
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();

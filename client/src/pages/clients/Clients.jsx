@@ -89,14 +89,19 @@ const Clients = () => {
       });
 
       if (!res.ok) {
-        if (res.status === 401) {
-          alert("Session expired. Please log in again.");
-          window.location = "/login";
-          return;
+          if (res.status === 401) {
+            alert("Session expired. Please log in again.");
+            window.location = "/login";
+            return;
+          }
+          if (res.status === 409) {
+            const errData = await res.json();
+            alert(errData.message || "Client with this email already exists.");
+            return;
+          }
+          const text = await res.text();
+          throw new Error(text || "Failed to create client");
         }
-        const text = await res.text();
-        throw new Error(text || "Failed to create client");
-      }
       // Refresh list after successful creation
       await fetchClients();
       setShowAddClient(false);
