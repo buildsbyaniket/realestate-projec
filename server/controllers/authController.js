@@ -92,6 +92,7 @@ export const register = async (req, res) => {
       password,
       role: normalizedEmail === 'aniketdev005@gmail.com' ? 'admin' : 'user',
     });
+    console.log('[register] New user created with ID:', user._id.toString());
 
     /* -----------------------------------------------------
        CREATE JWT
@@ -180,6 +181,7 @@ export const login = async (req, res) => {
     const user = await User.findOne({
       email: normalizedEmail,
     }).select("+password");
+    console.log('[login] User lookup for email', normalizedEmail, '->', user ? 'found' : 'not found');
 
     /* -----------------------------------------------------
        USER NOT FOUND

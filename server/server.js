@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
+import User from "./models/User.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
 import agentRoutes from "./routes/agentRoutes.js";
@@ -104,12 +105,21 @@ DATABASE
 const connectDatabase = async () => {
   try {
     console.log("Connecting to MongoDB...");
-
-    await mongoose.connect(process.env.MONGO_URI, { dbName: 'realestate' });
-
+    console.log("MONGO_URI:", process.env.MONGO_URI);
+    // Force DB name to ensure correct database is used in production
+    const dbName = 'realestate';
+    console.log("dbName:", dbName);
+    await mongoose.connect(process.env.MONGO_URI, { dbName });
     console.log("MongoDB connected successfully");
-    console.log("Database:", mongoose.connection.name);
-    console.log("Host:", mongoose.connection.host);
+
+    // Verification check for a user (Example user for testing persistence)
+    const testEmail = 'aniketdev005@gmail.com';
+    const verifyUser = await User.findOne({ email: testEmail });
+    console.log('[dbConnection] Verification findOne result for', testEmail, ':', verifyUser ? 'found' : 'not found');
+
+    console.log("Connected DB name:", mongoose.connection.name);
+    console.log("User collection:", User.collection.name);
+
   } catch (error) {
     console.error("MongoDB connection failed:");
     console.error(error.message);
