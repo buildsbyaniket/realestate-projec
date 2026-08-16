@@ -105,7 +105,7 @@ const connectDatabase = async () => {
   try {
     console.log("Connecting to MongoDB...");
 
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, { dbName: 'realestate' });
 
     console.log("MongoDB connected successfully");
     console.log("Database:", mongoose.connection.name);
