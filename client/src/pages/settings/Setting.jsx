@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { apiFetch } from "../../utils/api";
 
 import {
   FiUser,

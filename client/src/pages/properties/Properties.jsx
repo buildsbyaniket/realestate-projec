@@ -6,6 +6,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import PropertyFilters from "../../components/properties/PropertyFilters";
 import PropertyGrid from "../../components/properties/PropertyGrid";
+import { apiFetch } from "../../utils/api";
 
 const Properties = () => {
   const [search, setSearch] = useState("");
