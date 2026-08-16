@@ -31,7 +31,7 @@ const Properties = () => {
           page: currentPage,
           limit: 10,
         });
-        const response = await fetch(`/api/properties?${params.toString()}`, {
+        const response = await apiFetch(`/api/properties?${params.toString()}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!response.ok) {

@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiUser, FiMail, FiPhone, FiMapPin, FiUserCheck, FiSave, FiHome, FiTrendingUp, FiStar } from "react-icons/fi";
 import { AuthContext } from "../../context/AuthContext";
+import { apiFetch } from "../../utils/api";
 const AddAgent = () => {
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
@@ -34,7 +35,7 @@ const AddAgent = () => {
     console.log('Submitting agent with token:', token);
     e.preventDefault();
     try {
-      const res = await fetch('/api/agents', {
+      const res = await apiFetch('/api/agents', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,5 @@
 // Clients.jsx – now loads real data from the backend and supports adding a new client
-import React, { useState, useEffect } from "react";
+import { apiFetch } from "../../utils/api";
 import {
   FiSearch,
   FiFilter,
@@ -44,13 +44,11 @@ const Clients = () => {
         window.location = "/login";
         return;
       }
-      const res = await fetch(`/api/clients`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await apiFetch('/api/clients', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
       });
+
       if (!res.ok) {
         if (res.status === 401) {
           alert("Session expired. Please log in again.");
@@ -80,14 +78,15 @@ const Clients = () => {
         window.location = "/login";
         return;
       }
-      const res = await fetch("/api/clients", {
-        method: "POST",
+      const res = await apiFetch('/api/clients', {
+        method: 'POST',
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newClient),
       });
+
       if (!res.ok) {
         if (res.status === 401) {
           alert("Session expired. Please log in again.");

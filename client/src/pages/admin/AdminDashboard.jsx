@@ -1,6 +1,7 @@
 // client/src/pages/admin/AdminDashboard.jsx
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { apiFetch } from "../../utils/api";
 
 const AdminDashboard = () => {
   const { user, token } = useContext(AuthContext);
@@ -12,7 +13,7 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('/api/admin/users', {
+      const res = await apiFetch('/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -30,7 +31,7 @@ const AdminDashboard = () => {
 
   const promoteToAdmin = async (id) => {
     try {
-      const res = await fetch(`/api/admin/users/${id}/role`, {
+      const res = await apiFetch(`/api/admin/users/${id}/role`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

@@ -16,6 +16,7 @@ import {
   FiEdit2,
 } from "react-icons/fi";
 import { AuthContext } from "../../context/AuthContext";
+import { apiFetch } from "../../utils/api";
 
 const Agents = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,33 +39,32 @@ useEffect(() => {
   return () => clearTimeout(handler);
 }, [searchTerm]);
   useEffect(() => {
-
-    fetch('/api/agents', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  apiFetch('/api/agents', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(res => {
+      if (res.status === 401) {
+        // unauthorized – redirect to login
+        navigate('/login');
+        return [];
+      }
+      if (!res.ok) {
+        console.error('Failed to load agents, status:', res.status);
+        return [];
+      }
+      return res.json();
     })
-      .then(res => {
-        if (res.status === 401) {
-          // unauthorized – redirect to login
-          navigate('/login');
-          return [];
-        }
-        if (!res.ok) {
-          console.error('Failed to load agents, status:', res.status);
-          return [];
-        }
-        return res.json();
-      })
-        .then(data => {
-          console.log('Agents response data:', data);
-          setAgents(Array.isArray(data.agents) ? data.agents : []);
-        })
-      .catch(err => {
-        console.error('Failed to load agents', err);
-        setAgents([]);
-      });
-    }, [token, navigate]);
+    .then(data => {
+      console.log('Agents response data:', data);
+      setAgents(Array.isArray(data.agents) ? data.agents : []);
+    })
+    .catch(err => {
+      console.error('Failed to load agents', err);
+      setAgents([]);
+    });
+}, [token, navigate]);
 
   const filteredAgents = useMemo(() => {
     return agents.filter((agent) => {

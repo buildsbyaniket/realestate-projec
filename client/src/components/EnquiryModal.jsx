@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { apiFetch } from "../utils/api";
 
 /**
  * EnquiryModal – a simple modal to send a message to an agent.
@@ -21,7 +22,7 @@ const EnquiryModal = ({ isOpen, onClose, agentId }) => {
       return;
     }
     try {
-      const res = await fetch(`/api/enquiries`, {
+      const res = await apiFetch('/api/enquiries', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

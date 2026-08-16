@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiMail, FiPhone, FiMapPin, FiEye, FiEdit2 } from "react-icons/fi";
 import { AuthContext } from "../../context/AuthContext";
+import { apiFetch } from "../../utils/api";
 import EnquiryModal from "../../components/EnquiryModal";
 
 const AgentProfile = () => {
@@ -16,20 +17,22 @@ const AgentProfile = () => {
       navigate("/login");
       return;
     }
-    fetch(`/api/agents/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
+    const fetchData = async () => {
+      try {
+        const res = await apiFetch(`/api/agents/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (res.status === 401) {
           navigate("/login");
-          return null;
+          return;
         }
-        return res.json();
-      })
-      .then((data) => {
+        const data = await res.json();
         if (data && data.agent) setAgent(data.agent);
-      })
-      .catch((err) => console.error(err));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchData();
   }, [id, token, navigate]);
 
   if (!agent) {

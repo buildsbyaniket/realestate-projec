@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiUser, FiMail, FiPhone, FiMapPin, FiUserCheck, FiSave, FiHome, FiTrendingUp, FiStar } from "react-icons/fi";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from '../../context/AuthContext';
+import { apiFetch } from '../../utils/api';
 
 const EditAgent = () => {
   const navigate = useNavigate();
@@ -30,9 +31,7 @@ const EditAgent = () => {
       navigate("/login");
       return;
     }
-    fetch(`/api/agents/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    apiFetch(`/api/agents/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         if (res.status === 401) {
           navigate("/login");
@@ -75,16 +74,14 @@ const EditAgent = () => {
       return;
     }
     try {
-      const res = await fetch(`/api/agents/${id}`,
-        {
+      const res = await apiFetch(`/api/agents/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(form),
-        }
-      );
+        });
       if (res.status === 401) {
         navigate("/login");
         return;

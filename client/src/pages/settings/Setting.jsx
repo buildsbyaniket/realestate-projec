@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import axios from 'axios';
+
 import {
   FiUser,
   FiBell,
@@ -50,9 +50,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('/api/auth/me', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
+        const response = await apiFetch('/api/auth/me', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
         const user = response.data.user || {};
         setSettings((prev) => ({
           ...prev,

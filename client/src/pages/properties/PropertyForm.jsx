@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PropertyCard from "../../components/properties/PropertyCard";
+import { apiFetch } from '../../utils/api';
 
 // Initial empty form values
 const initialEmpty = {
@@ -32,9 +33,9 @@ const PropertyForm = ({ mode }) => {
       const fetchProperty = async () => {
         try {
           const token = localStorage.getItem("token");
-          const response = await fetch(`/api/properties/${id}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          });
+          const response = await apiFetch(`/api/properties/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        
+
           if (!response.ok) throw new Error(`Failed to fetch property (status ${response.status})`);
           const data = await response.json();
           // Backend returns { property: {...} }
@@ -88,7 +89,7 @@ const PropertyForm = ({ mode }) => {
         Array.from(formData.images).forEach((file) => {
           form.append("images", file);
         });
-        await fetch(url, {
+        const res = await apiFetch(url, {
           method,
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: form,
@@ -113,14 +114,12 @@ const PropertyForm = ({ mode }) => {
         fields.forEach((f) => {
           if (formData[f] !== undefined) payload[f] = formData[f];
         });
-        await fetch(url, {
+        const res = await apiFetch(url, {
           method,
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            "Content-Type": "application/json",
-          },
+          headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+
       }
 
       navigate("/properties", { state: { refresh: Date.now() } });

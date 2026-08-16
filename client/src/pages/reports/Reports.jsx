@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { apiFetch } from '../../utils/api';
 import {
   FiBarChart2,
   FiTrendingUp,
@@ -22,14 +23,10 @@ const Reports = () => {
   const fetchData = async (m, y) => {
     try {
       const token = localStorage.getItem('token');
-      const summaryRes = await fetch(`/api/reports/summary?month=${m}&year=${y}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const summaryRes = await apiFetch(`/api/reports/summary?month=${m}&year=${y}`, { headers: { Authorization: `Bearer ${token}` } });
       const summaryData = await summaryRes.json();
       if (summaryRes.ok) setSummary(summaryData.summary);
-      const reportsRes = await fetch(`/api/reports?month=${m}&year=${y}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const reportsRes = await apiFetch(`/api/reports?month=${m}&year=${y}`, { headers: { Authorization: `Bearer ${token}` } });
       const reportsData = await reportsRes.json();
       if (reportsRes.ok) setReports(reportsData.reports);
     } catch (err) {

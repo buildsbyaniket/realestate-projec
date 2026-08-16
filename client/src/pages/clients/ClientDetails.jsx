@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { apiFetch } from "../../utils/api";
 import { FiChevronLeft, FiUser, FiMapPin, FiPhone, FiMail } from "react-icons/fi";
 
 const ClientDetails = () => {
@@ -13,7 +14,7 @@ const ClientDetails = () => {
   useEffect(() => {
     const fetchClient = async () => {
       try {
-        const res = await fetch(`/api/clients/${id}`, {
+        const res = await apiFetch(`/api/clients/${id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

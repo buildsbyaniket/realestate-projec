@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import PropertyStatus from "../../components/properties/PropertyStatus";
+import { apiFetch } from '../../utils/api';
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -16,7 +16,7 @@ const PropertyDetail = () => {
       setError("");
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`/api/properties/${id}`, {
+        const response = await apiFetch(`/api/properties/${id}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!response.ok) {
