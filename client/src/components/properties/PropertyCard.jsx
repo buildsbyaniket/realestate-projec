@@ -4,6 +4,8 @@ import { FiEdit2 } from "react-icons/fi";
 import PropertyStatus from "./PropertyStatus";
 import SafeImage from "../common/SafeImage";
 import { ArrowUpRight, MapPin } from "lucide-react";
+import { getImageUrl } from "../../utils/urlHelper";
+import placeholderImg from "../../assets/placeholder.png";
 
 const PropertyCard = ({ property, onView, onEdit }) => {
   return (
@@ -11,7 +13,7 @@ const PropertyCard = ({ property, onView, onEdit }) => {
       {/* Image */}
       <div className="relative h-[270px] overflow-hidden">
         <SafeImage
-          src={property.featuredImage || (property.images && property.images[0]) || '/images/placeholder.png'}
+          src={getImageUrl(property.featuredImage || (property.images && property.images[0])) || placeholderImg}
           alt={property.title}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
@@ -86,4 +88,4 @@ const PropertyCard = ({ property, onView, onEdit }) => {
   );
 };
 
-export default PropertyCard;
+export default PropertyCard;

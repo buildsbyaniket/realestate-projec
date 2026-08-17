@@ -61,70 +61,36 @@ const PropertyForm = ({ mode }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const token = localStorage.getItem("token");
-      const url = mode === "add" ? "/api/properties" : `/api/properties/${id}`;
-      const method = mode === "add" ? "POST" : "PUT";
-
-      if (formData.images && formData.images.length > 0) {
-        const form = new FormData();
-        const fields = [
-          "title",
-          "description",
-          "address",
-          "city",
-          "state",
-          "zipCode",
-          "country",
-          "bedrooms",
-          "bathrooms",
-          "area",
-          "price",
-          "status",
-          "propertyType",
-        ];
-        fields.forEach((f) => {
-          if (formData[f] !== undefined) form.append(f, formData[f]);
-        });
-        Array.from(formData.images).forEach((file) => {
-          form.append("images", file);
-        });
-        const res = await apiFetch(url, {
-          method,
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: form,
-        });
-      } else {
-        const payload = {};
-        const fields = [
-          "title",
-          "description",
-          "address",
-          "city",
-          "state",
-          "zipCode",
-          "country",
-          "bedrooms",
-          "bathrooms",
-          "area",
-          "price",
-          "status",
-          "propertyType",
-        ];
-        fields.forEach((f) => {
-          if (formData[f] !== undefined) payload[f] = formData[f];
-        });
-        const res = await apiFetch(url, {
-          method,
-          headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
+    const token = localStorage.getItem("token");
+    const isEdit = mode === "edit";
+    const endpoint = isEdit ? `/api/properties/${id}` : "/api/properties";
+    const method = isEdit ? "PUT" : "POST";
+    const form = new FormData();
+    // Append fields
+    for (const key of Object.keys(formData)) {
+      if (key === "images" && formData.images) {
+        const files = formData.images;
+        for (let i = 0; i < files.length; i++) {
+          form.append("images", files[i]);
+        }
+      } else if (key !== "image") {
+        form.append(key, formData[key]);
       }
-
-      navigate("/properties", { state: { refresh: Date.now() } });
+    }
+    try {
+      const response = await apiFetch(endpoint, {
+        method,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
+      });
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Failed to ${isEdit ? "update" : "create"} property: ${response.status} ${errText}`);
+      }
+      navigate("/properties");
     } catch (err) {
-      console.error("Error submitting property:", err);
+      console.error(err);
+      alert(err.message);
     }
   };
 

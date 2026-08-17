@@ -69,14 +69,27 @@ const Settings = () => {
     fetchProfile();
   }, []);
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      handleChange("avatar", reader.result);
-    };
-    reader.readAsDataURL(file);
+    // Upload file to backend and get URL
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await apiFetch('/api/upload', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      // Assume response contains { url: 'https://.../image.jpg' }
+      handleChange('avatar', data.url || data.image || data.fileUrl);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload avatar');
+    }
   };
 
   const triggerFileSelect = () => {

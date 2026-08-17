@@ -30,6 +30,7 @@ import AddAgent from "./pages/agents/AddAgent";
 import AgentProfile from "./pages/agents/AgentProfile";
 import EditAgent from "./pages/agents/EditAgent";
 import Clients from "./pages/clients/Clients";
+import EditClient from "./pages/clients/EditClient";
 import Reports from "./pages/reports/Reports";
 import PropertyDetail from "./pages/properties/PropertyDetail";
 import PropertyForm from "./pages/properties/PropertyForm";

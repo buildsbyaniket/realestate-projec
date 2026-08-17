@@ -66,6 +66,18 @@ app.use("/api/admin", adminRoutes);
 // Settings routes
 app.use("/api/settings", settingsRoutes);
 
+// Serve React client build (Vite) and fallback for SPA routes
+const clientBuildPath = path.resolve(__dirname, "../client/dist");
+app.use(express.static(clientBuildPath));
+// Fallback: serve index.html for any non-API request accepting HTML
+app.get("*", (req, res) => {
+  if (req.accepts("html")) {
+    res.sendFile(path.join(clientBuildPath, "index.html"));
+  } else {
+    res.status(404).json({ success: false, message: "Not Found" });
+  }
+});
+
 /*
 =========================================================
 TEST ROUTE

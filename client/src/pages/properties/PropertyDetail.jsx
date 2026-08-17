@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiFetch } from '../../utils/api';
 import PropertyStatus from '../../components/properties/PropertyStatus';
+import { getImageUrl } from '../../utils/urlHelper';
+import placeholderImg from '../../assets/placeholder.png';
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ const PropertyDetail = () => {
         const prop = data.property;
         setProperty(prop);
         // Choose featuredImage or first image as main
-        const main = prop.featuredImage || (prop.images && prop.images[0]) || "/images/placeholder.png";
+        const main = getImageUrl(prop.featuredImage || (prop.images && prop.images[0])) || placeholderImg;
         setMainImage(main);
       } catch (err) {
         console.error(err);
@@ -66,7 +68,8 @@ const PropertyDetail = () => {
   }
 
   const handleThumbnailClick = (src) => {
-    setMainImage(src);
+    const fullUrl = getImageUrl(src) || placeholderImg;
+    setMainImage(fullUrl);
   };
 
   return (
@@ -92,7 +95,7 @@ const PropertyDetail = () => {
                   onClick={() => handleThumbnailClick(img)}
                   className={`border ${img === mainImage ? "border-[#3d8f8d]" : "border-gray-200"} p-1`}
                 >
-                  <img src={img} alt={`thumb-${idx}`} className="h-16 w-16 object-cover rounded" />
+                  <img src={getImageUrl(img) || placeholderImg} alt={`thumb-${idx}`} className="h-16 w-16 object-cover rounded" />
                 </button>
               ))}
             </div>
